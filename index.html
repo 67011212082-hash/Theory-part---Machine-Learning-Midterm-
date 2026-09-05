@@ -1,1 +1,659 @@
+<!DOCTYPE html>
+<html lang="th">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning Theory & Visualization</title>
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, "Noto Sans Thai", sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+            line-height: 1.65
+        }
+
+        header {
+            background: linear-gradient(135deg, #172554, #2563eb);
+            color: white;
+            padding: 42px 20px;
+            text-align: center
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: 34px
+        }
+
+        header p {
+            margin: 4px 0;
+            opacity: .92
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 30px auto;
+            padding: 0 18px
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, .08)
+        }
+
+        h2 {
+            color: #1d4ed8;
+            border-left: 6px solid #2563eb;
+            padding-left: 12px
+        }
+
+        h3 {
+            color: #334155
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px
+        }
+
+        .info {
+            background: #eff6ff;
+            border-radius: 12px;
+            padding: 16px
+        }
+
+        .formula {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 20px;
+            margin: 15px 0
+        }
+
+        .step {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 15px;
+            background: #f8fbff
+        }
+
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 999px;
+            padding: 4px 11px;
+            font-size: 13px;
+            margin: 2px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0
+        }
+
+        th,
+        td {
+            border: 1px solid #dbe2ea;
+            padding: 10px;
+            text-align: center
+        }
+
+        th {
+            background: #eff6ff
+        }
+
+        .result {
+            background: #ecfdf5;
+            border-left: 5px solid #10b981;
+            padding: 15px;
+            border-radius: 8px
+        }
+
+        .warning {
+            background: #fff7ed;
+            border-left: 5px solid #f97316;
+            padding: 15px;
+            border-radius: 8px
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 900px;
+            height: 420px;
+            border: 1px solid #dbe2ea;
+            border-radius: 12px;
+            background: white;
+            display: block;
+            margin: 15px auto
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            border-radius: 9px;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin: 4px
+        }
+
+        button:hover {
+            background: #1d4ed8
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b
+        }
+
+        @media(max-width:600px) {
+            header h1 {
+                font-size: 26px
+            }
+
+            .card {
+                padding: 20px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Theory part - Machine Learning</h1>
+        <p>K-Nearest Neighbor (KNN) KNN Regression K-Means</p>
+    </header>
+
+    <div class="container">
+
+        <section class="card">
+            <h2>ภาพรวม</h2>
+            <p>
+                เอกสารนี้สรุปแนวคิดและกระบวนการทำงานของ Machine Learning จำนวน 3 อัลกอริทึม
+                ได้แก่ <b>K-Nearest Neighbor (KNN)</b>, <b>KNN Regression</b> และ
+                <b>K-Means</b> โดยแสดงตัวอย่างข้อมูล การคำนวณ และผลลัพธ์ผ่านกราฟ
+                เพื่อให้สามารถมองเห็นขั้นตอนการทำงานของแต่ละอัลกอริทึมได้อย่างชัดเจน
+            </p>
+            <div class="grid">
+                <div class="info"><b>KNN</b><br>ใช้ข้อมูลเพื่อนบ้านที่ใกล้ที่สุดเพื่อจำแนกประเภท</div>
+                <div class="info"><b>KNN Regression</b><br>ใช้เพื่อนบ้านเพื่อประมาณค่าตัวเลข</div>
+                <div class="info"><b>K-Means</b><br>แบ่งข้อมูลออกเป็น K กลุ่มตามความใกล้ของจุดข้อมูลกับ Centroid</div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>1. K-Nearest Neighbor (KNN)</h2>
+            <div class="grid">
+                <div class="info"><b>ประเภท:</b> Supervised Learning</div>
+                <div class="info"><b>งานหลัก:</b> Classification</div>
+                <div class="info"><b>แนวคิด:</b> จุดที่อยู่ใกล้กันมักมี Class ใกล้เคียงกัน</div>
+                <div class="info"><b>พารามิเตอร์:</b> K = จำนวนเพื่อนบ้านที่ใช้ตัดสินใจ</div>
+            </div>
+
+            <h3>หลักการทำงาน</h3>
+            <div class="grid">
+                <div class="step"><b>Step 1</b><br>กำหนด Query Point ที่ต้องการทำนาย</div>
+                <div class="step"><b>Step 2</b><br>คำนวณระยะห่างจาก Query Point ไปยังข้อมูลทุกจุด</div>
+                <div class="step"><b>Step 3</b><br>เลือก K จุดที่มีระยะห่างน้อยที่สุด</div>
+                <div class="step"><b>Step 4</b><br>ใช้ Majority Vote เพื่อหา Class</div>
+            </div>
+
+            <h3>Euclidean Distance</h3>
+            <div class="formula">d = √((x₁ − x₂)² + (y₁ − y₂)²)</div>
+
+            <h3>ตัวอย่างการคำนวณ</h3>
+            <table>
+                <tr>
+                    <th>จุด</th>
+                    <th>X</th>
+                    <th>Y</th>
+                    <th>Class</th>
+                </tr>
+                <tr>
+                    <td>A</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>Red</td>
+                </tr>
+                <tr>
+                    <td>B</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>Red</td>
+                </tr>
+                <tr>
+                    <td>C</td>
+                    <td>3</td>
+                    <td>1</td>
+                    <td>Blue</td>
+                </tr>
+                <tr>
+                    <td>D</td>
+                    <td>6</td>
+                    <td>5</td>
+                    <td>Blue</td>
+                </tr>
+                <tr>
+                    <td>Query</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>?</td>
+                </tr>
+            </table>
+
+            <p>คำนวณระยะจาก Query (2,2):</p>
+            <ul>
+                <li>A: √((2−1)²+(2−2)²) = <b>1.00</b></li>
+                <li>B: √((2−2)²+(2−3)²) = <b>1.00</b></li>
+                <li>C: √((2−3)²+(2−1)²) = <b>1.41</b></li>
+                <li>D: √((2−6)²+(2−5)²) = <b>5.00</b></li>
+            </ul>
+
+            <p>กำหนด K = 3 → เพื่อนบ้านที่ใกล้ที่สุดคือ A, B และ C</p>
+            <div class="result">
+                <b>Voting:</b> Red = 2, Blue = 1<br>
+                <b>ผลลัพธ์: Query Point ถูกจัดเป็น Class = Red</b>
+            </div>
+
+            <h3>Visualization: KNN Classification</h3>
+            <canvas id="knnCanvas" width="900" height="420"></canvas>
+            <button onclick="drawKNN()">แสดง KNN ใหม่</button>
+        </section>
+
+        <section class="card">
+            <h2>2. KNN Regression</h2>
+            <div class="grid">
+                <div class="info"><b>ประเภท:</b> Supervised Learning</div>
+                <div class="info"><b>งานหลัก:</b> Regression</div>
+                <div class="info"><b>ผลลัพธ์:</b> ค่าตัวเลขต่อเนื่อง</div>
+                <div class="info"><b>ตัวอย่าง:</b> ทำนายราคาบ้าน</div>
+            </div>
+
+            <h3>หลักการ</h3>
+            <p>
+                KNN Regression มีแนวคิดคล้าย KNN Classification แต่แทนที่จะใช้ Majority Vote
+                จะนำค่าของเพื่อนบ้านมาคำนวณค่าเฉลี่ยเพื่อสร้างค่าทำนาย
+            </p>
+
+            <div class="formula">ŷ = (y₁ + y₂ + ... + yₖ) / K</div>
+
+            <p>สำหรับ Weighted KNN Regression สามารถให้น้ำหนักกับจุดที่อยู่ใกล้มากกว่า เช่น</p>
+            <div class="formula">ŷ = Σ(wᵢyᵢ) / Σwᵢ &nbsp;&nbsp; โดย &nbsp;&nbsp; wᵢ = 1 / dᵢ</div>
+
+            <h3>ตัวอย่าง: House Price Prediction</h3>
+            <table>
+                <tr>
+                    <th>บ้าน</th>
+                    <th>พื้นที่ (m²)</th>
+                    <th>ห้องนอน</th>
+                    <th>ราคา (พันบาท)</th>
+                </tr>
+                <tr>
+                    <td>A</td>
+                    <td>80</td>
+                    <td>2</td>
+                    <td>2,000</td>
+                </tr>
+                <tr>
+                    <td>B</td>
+                    <td>90</td>
+                    <td>2</td>
+                    <td>2,300</td>
+                </tr>
+                <tr>
+                    <td>C</td>
+                    <td>100</td>
+                    <td>3</td>
+                    <td>2,800</td>
+                </tr>
+                <tr>
+                    <td>D</td>
+                    <td>130</td>
+                    <td>3</td>
+                    <td>3,500</td>
+                </tr>
+            </table>
+
+            <p>สมมติบ้านใหม่มีพื้นที่ 95 m² และ 2 ห้องนอน และกำหนด K = 3</p>
+            <p>หลังจากคำนวณระยะห่างและเลือกเพื่อนบ้าน 3 จุด จะได้ A, B และ C</p>
+            <div class="formula">ŷ = (2000 + 2300 + 2800) / 3 = <b>2366.67</b></div>
+            <div class="result">
+                <b>ผลลัพธ์แบบ Simple KNN Regression:</b><br>
+                ราคาบ้านที่ทำนาย ≈ <b>2,366.67 พันบาท</b> หรือประมาณ <b>2.37 ล้านบาท</b>
+            </div>
+
+            <h3>Visualization: KNN Regression</h3>
+            <canvas id="regCanvas" width="900" height="420"></canvas>
+            <button onclick="drawRegression()">แสดง Regression ใหม่</button>
+        </section>
+
+        <section class="card">
+            <h2>3. K-Means Clustering</h2>
+            <div class="grid">
+                <div class="info"><b>ประเภท:</b> Unsupervised Learning</div>
+                <div class="info"><b>งานหลัก:</b> Clustering</div>
+                <div class="info"><b>Input:</b> ข้อมูลที่ยังไม่มี Label</div>
+                <div class="info"><b>Parameter:</b> K = จำนวน Cluster</div>
+            </div>
+
+            <h3>หลักการทำงาน</h3>
+            <div class="grid">
+                <div class="step"><b>Step 1</b><br>กำหนดจำนวน Cluster K</div>
+                <div class="step"><b>Step 2</b><br>กำหนดตำแหน่ง Centroid เริ่มต้น</div>
+                <div class="step"><b>Step 3</b><br>คำนวณระยะจากแต่ละจุดไปยัง Centroid</div>
+                <div class="step"><b>Step 4</b><br>Assign จุดไปยัง Cluster ที่ใกล้ที่สุด</div>
+                <div class="step"><b>Step 5</b><br>คำนวณ Centroid ใหม่จากค่าเฉลี่ยของจุดใน Cluster</div>
+                <div class="step"><b>Step 6</b><br>ทำซ้ำจน Centroid และกลุ่มข้อมูลไม่เปลี่ยนหรือเปลี่ยนเพียงเล็กน้อย
+                </div>
+            </div>
+
+            <h3>Distance</h3>
+            <div class="formula">d = √((x − cₓ)² + (y − cᵧ)²)</div>
+
+            <h3>ตัวอย่างการคำนวณ</h3>
+            <p>กำหนด K = 2 และมีข้อมูลใน Cluster 1 ดังนี้</p>
+            <table>
+                <tr>
+                    <th>จุด</th>
+                    <th>X</th>
+                    <th>Y</th>
+                </tr>
+                <tr>
+                    <td>P1</td>
+                    <td>1</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>P2</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td>P3</td>
+                    <td>3</td>
+                    <td>2</td>
+                </tr>
+            </table>
+
+            <p>Centroid ใหม่คำนวณจากค่าเฉลี่ยของสมาชิกใน Cluster:</p>
+            <div class="formula">
+                Cₓ = (1 + 2 + 3) / 3 = 2<br>
+                Cᵧ = (2 + 3 + 2) / 3 = 2.33
+            </div>
+
+            <div class="result">
+                <b>Centroid ใหม่ของ Cluster 1 = (2, 2.33)</b>
+            </div>
+
+            <h3>Visualization: K-Means</h3>
+            <canvas id="kmeansCanvas" width="900" height="420"></canvas>
+            <button onclick="drawKMeans()">ขยับ Centroid </button>
+            <button onclick="drawKMeans(true)">สุ่มตำแหน่งเริ่มต้นใหม่</button>
+        </section>
+
+        <section class="card">
+            <h2>เปรียบเทียบทั้ง 3 Algorithms</h2>
+            <table>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Learning</th>
+                    <th>Task</th>
+                    <th>ผลลัพธ์</th>
+                    <th>แนวคิดสำคัญ</th>
+                </tr>
+                <tr>
+                    <td>KNN</td>
+                    <td>Supervised</td>
+                    <td>Classification</td>
+                    <td>Class</td>
+                    <td>Nearest Neighbors + Voting</td>
+                </tr>
+                <tr>
+                    <td>KNN Regression</td>
+                    <td>Supervised</td>
+                    <td>Regression</td>
+                    <td>ตัวเลข</td>
+                    <td>Nearest Neighbors + Average</td>
+                </tr>
+                <tr>
+                    <td>K-Means</td>
+                    <td>Unsupervised</td>
+                    <td>Clustering</td>
+                    <td>Cluster</td>
+                    <td>Distance + Centroid</td>
+                </tr>
+            </table>
+
+            <div class="warning">
+                <b>ข้อควรจำ:</b> ค่า K มีผลต่อผลลัพธ์ของ KNN และ K-Means ดังนั้นการเลือก K
+                ควรเหมาะสมกับลักษณะของข้อมูลและวัตถุประสงค์ของงาน
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>สรุป</h2>
+            <p>
+                KNN เป็นอัลกอริทึมที่ใช้ความใกล้ของข้อมูลในการจำแนกประเภท โดยอาศัยการโหวตจาก
+                เพื่อนบ้านที่ใกล้ที่สุด ส่วน KNN Regression ใช้แนวคิดเดียวกันแต่ผลลัพธ์เป็นค่าตัวเลข
+                เช่น ราคาบ้าน สำหรับ K-Means เป็น Unsupervised Learning ที่พยายามแบ่งข้อมูล
+                ออกเป็นกลุ่ม โดยอาศัยระยะห่างระหว่างข้อมูลกับ Centroid และปรับตำแหน่ง Centroid
+                ซ้ำจนได้กลุ่มที่เหมาะสม
+            </p>
+        </section>
+
+    </div>
+
+    <footer>
+        Machine Learning Theory & Visualization • KNN • KNN Regression • K-Means
+    </footer>
+
+    <script>
+        function clearCanvas(id) {
+            const c = document.getElementById(id), ctx = c.getContext("2d");
+            ctx.clearRect(0, 0, c.width, c.height);
+            ctx.font = "14px Arial";
+            ctx.strokeStyle = "#cbd5e1";
+            for (let x = 50; x < 850; x += 80) { ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 390); ctx.stroke(); }
+            for (let y = 50; y < 390; y += 60) { ctx.beginPath(); ctx.moveTo(30, y); ctx.lineTo(870, y); ctx.stroke(); }
+            return ctx;
+        }
+        function point(ctx, x, y, label) {
+            ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = "#111827"; ctx.fillText(label, x + 12, y - 10);
+        }
+        function drawKNN() {
+            const ctx = clearCanvas("knnCanvas");
+            const pts = [
+                [150, 260, "A", "Red"],
+                [230, 190, "B", "Red"],
+                [300, 285, "C", "Blue"],
+                [520, 110, "D", "Blue"]
+            ];
+
+            // สุ่มตำแหน่ง Query Point ให้อยู่ในช่วงแกนที่เหมาะสม
+            const q = [
+                Math.floor(Math.random() * (450 - 150) + 150),
+                Math.floor(Math.random() * (300 - 150) + 150)
+            ];
+
+            // คำนวณระยะทางและเรียงลำดับหา 3 จุดที่ใกล้ที่สุดจริง ๆ
+            pts.sort((a, b) => {
+                const distA = Math.hypot(a[0] - q[0], a[1] - q[1]);
+                const distB = Math.hypot(b[0] - q[0], b[1] - q[1]);
+                return distA - distB;
+            });
+
+            // วาดจุดข้อมูลทั้งหมด
+            pts.forEach(p => {
+                ctx.fillStyle = p[3] === "Red" ? "#ef4444" : "#3b82f6";
+                point(ctx, p[0], p[1], p[2]);
+            });
+
+            // ลากเส้นไปยัง 3 จุดที่ใกล้ที่สุด
+            ctx.strokeStyle = "#64748b";
+            ctx.setLineDash([6, 6]);
+            pts.slice(0, 3).forEach(p => {
+                ctx.beginPath();
+                ctx.moveTo(q[0], q[1]);
+                ctx.lineTo(p[0], p[1]);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // นับโหวต
+            const redVotes = pts.slice(0, 3).filter(p => p[3] === "Red").length;
+            const blueVotes = 3 - redVotes;
+            const winner = redVotes > blueVotes ? "Red" : "Blue";
+
+            // วาด Query Point และข้อความ
+            ctx.fillStyle = "#111827";
+            point(ctx, q[0], q[1], `Query (${winner})`);
+            ctx.font = "18px Arial";
+            ctx.fillText(`K = 3 → Red: ${redVotes}, Blue: ${blueVotes} → Prediction = ${winner}`, 90, 405);
+        }
+        function drawRegression() {
+            const ctx = clearCanvas("regCanvas");
+            // [x, y, price(k)]
+            const data = [
+                [120, 310, 2000],
+                [260, 270, 2300],
+                [400, 215, 2800],
+                [650, 120, 3500]
+            ];
+
+            // สุ่มพิกัด Query Point ใหม่
+            const q = [
+                Math.floor(Math.random() * (500 - 180) + 180),
+                Math.floor(Math.random() * (290 - 150) + 150)
+            ];
+
+            // คำนวณระยะทางและเรียงหาจุดที่ใกล้ที่สุด
+            data.sort((a, b) => {
+                const distA = Math.hypot(a[0] - q[0], a[1] - q[1]);
+                const distB = Math.hypot(b[0] - q[0], b[1] - q[1]);
+                return distA - distB;
+            });
+
+            // วาดจุดข้อมูลบ้านเดิม
+            ctx.font = "14px Arial";
+            data.forEach((p, i) => {
+                ctx.fillStyle = "#2563eb";
+                point(ctx, p[0], p[1], "House " + String.fromCharCode(65 + i));
+                ctx.fillStyle = "#111827";
+                ctx.fillText(p[2] + "k", p[0] - 18, p[1] + 28);
+            });
+
+            // ลากเส้นเชื่อมไปยังเพื่อนบ้าน 3 หลังที่ใกล้ที่สุด
+            ctx.strokeStyle = "#64748b";
+            ctx.setLineDash([6, 6]);
+            data.slice(0, 3).forEach(p => {
+                ctx.beginPath();
+                ctx.moveTo(q[0], q[1]);
+                ctx.lineTo(p[0], p[1]);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // คำนวณค่าเฉลี่ยราคา (Mean of K=3)
+            const nearestPrices = data.slice(0, 3).map(p => p[2]);
+            const avgPrice = (nearestPrices.reduce((sum, val) => sum + val, 0) / 3).toFixed(2);
+
+            // วาด Query Point
+            ctx.fillStyle = "#dc2626";
+            point(ctx, q[0], q[1], "Query");
+
+            ctx.fillStyle = "#111827";
+            ctx.textAlign = "center";
+            ctx.font = "16px Arial";
+            // แสดงพิกัดจำลองที่สุ่มได้จริงแทนค่า Hardcode 95 m²
+            ctx.fillText(`K = 3 → Query Point (${q[0]}, ${q[1]}) → Prediction ≈ ${avgPrice}k THB`, 75, 405);
+        }
+        // เก็บ state ของ K-Means ไว้ภายนอกฟังก์ชัน
+        let kmeansState = {
+            step: 0,
+            pts: [
+                [120, 260], [160, 220], [190, 300], [230, 250], [200, 190],
+                [620, 150], [670, 190], [720, 120], [760, 210], [700, 250]
+            ],
+            c1: [140, 280],
+            c2: [640, 140]
+        };
+
+        function drawKMeans(reset = false) {
+            const ctx = clearCanvas("kmeansCanvas");
+
+            if (reset) {
+                // สุ่มตำแหน่งเริ่มต้นของ Centroid ใหม่
+                kmeansState.c1 = [Math.floor(Math.random() * 200 + 100), Math.floor(Math.random() * 200 + 150)];
+                kmeansState.c2 = [Math.floor(Math.random() * 200 + 600), Math.floor(Math.random() * 200 + 120)];
+                kmeansState.step = 0;
+            }
+
+            const { pts, c1, c2 } = kmeansState;
+            const cluster1 = [], cluster2 = [];
+
+            // 1. Assign จุดเข้า Cluster ตามระยะใกล้สุด
+            pts.forEach((p, i) => {
+                const d1 = Math.hypot(p[0] - c1[0], p[1] - c1[1]);
+                const d2 = Math.hypot(p[0] - c2[0], p[1] - c2[1]);
+                if (d1 < d2) {
+                    cluster1.push(p);
+                    ctx.fillStyle = "#2563eb"; // สีฟ้า
+                } else {
+                    cluster2.push(p);
+                    ctx.fillStyle = "#f59e0b"; // สีส้ม
+                }
+                point(ctx, p[0], p[1], "P" + (i + 1));
+            });
+
+            // 2. คำนวณ Mean (Centroid ใหม่) จริง
+            const newC1 = cluster1.length > 0
+                ? [cluster1.reduce((s, p) => s + p[0], 0) / cluster1.length, cluster1.reduce((s, p) => s + p[1], 0) / cluster1.length]
+                : [...c1];
+
+            const newC2 = cluster2.length > 0
+                ? [cluster2.reduce((s, p) => s + p[0], 0) / cluster2.length, cluster2.reduce((s, p) => s + p[1], 0) / cluster2.length]
+                : [...c2];
+
+            // 3. วาด Centroid ปัจจุบัน
+            ctx.fillStyle = "#111827";
+            ctx.beginPath(); ctx.arc(c1[0], c1[1], 14, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(c2[0], c2[1], 14, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = "#fff"; ctx.font = "bold 12px Arial";
+            ctx.fillText("C1", c1[0] - 9, c1[1] + 4);
+            ctx.fillText("C2", c2[0] - 9, c2[1] + 4);
+
+            // 4. แสดงเส้นขยับไปยัง Centroid ใหม่
+            ctx.strokeStyle = "#dc2626"; ctx.lineWidth = 3; ctx.setLineDash([8, 5]);
+            ctx.beginPath(); ctx.moveTo(c1[0], c1[1]); ctx.lineTo(newC1[0], newC1[1]); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(c2[0], c2[1]); ctx.lineTo(newC2[0], newC2[1]); ctx.stroke();
+            ctx.setLineDash([]); ctx.lineWidth = 1;
+
+            // อัปเดตตำแหน่งจริงสำหรับรอบถัดไป
+            kmeansState.c1 = newC1;
+            kmeansState.c2 = newC2;
+            kmeansState.step++;
+
+            ctx.fillStyle = "#111827"; ctx.font = "18px Arial";
+            ctx.fillText(`Step ${kmeansState.step}: จุดถูกจัดกลุ่มแล้ว และเส้นประแสดงทิศทางที่ Centroid จะขยับไป (กดซ้ำเพื่อขยับ)`, 80, 405);
+        }
+        drawKNN(); drawRegression(); drawKMeans();
+    </script>
+</body>
+
+</html>
